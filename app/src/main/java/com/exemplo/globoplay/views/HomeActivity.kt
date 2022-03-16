@@ -22,24 +22,59 @@ import com.exemplo.globoplay.repository.MoviesRepository
 class HomeActivity : AppCompatActivity() {
     private lateinit var popularMovies: RecyclerView
     private lateinit var popularMoviesAdapter: MoviesAdapter
+    private lateinit var popularMoviesLayoutMgr: LinearLayoutManager
+
+    private lateinit var popularNoveo: RecyclerView
+    private lateinit var popularNoveoAdapter: MoviesAdapter
+    private lateinit var popularNoveoLayoutMgr: LinearLayoutManager
+
+    private lateinit var popularSeries: RecyclerView
+    private lateinit var popularSeriesAdapter: MoviesAdapter
+    private lateinit var popularSeriesLayoutMgr: LinearLayoutManager
+
+    private var popularMoviesPage = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         setTitle("globoplay")
 
         popularMovies = findViewById(R.id.popular_movies)
-        popularMovies.layoutManager = LinearLayoutManager(
+        popularNoveo = findViewById(R.id.popular_noves)
+        popularSeries = findViewById(R.id.popular_series)
+
+        popularMoviesLayoutMgr = LinearLayoutManager(
             this,
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        popularMoviesAdapter = MoviesAdapter(listOf())
+        popularNoveoLayoutMgr = LinearLayoutManager(
+            this,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+
+        popularSeriesLayoutMgr = LinearLayoutManager(
+            this,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+
+        popularMovies.layoutManager = popularMoviesLayoutMgr
+        popularMoviesAdapter = MoviesAdapter(mutableListOf())
         popularMovies.adapter = popularMoviesAdapter
 
-        MoviesRepository.getPopularMovies(
-            onSuccess = ::onPopularMoviesFetched,
-            onError = ::onError
-        )
+        popularNoveo.layoutManager = popularNoveoLayoutMgr
+        popularNoveoAdapter = MoviesAdapter(mutableListOf())
+        popularNoveo.adapter = popularNoveoAdapter
+
+        popularSeries.layoutManager = popularSeriesLayoutMgr
+        popularSeriesAdapter = MoviesAdapter(mutableListOf())
+        popularSeries.adapter = popularSeriesAdapter
+
+        getPopularMovies()
+        //getPopularNoves()
+        //getPopularSeries()
     }
 
     private fun setTitle(title: String?) {
@@ -72,8 +107,100 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    private fun getPopularMovies() {
+        MoviesRepository.getPopularMovies(
+            popularMoviesPage,
+            ::onPopularMoviesFetched,
+            ::onError
+        )
+    }
+
+    private fun getPopularNoves() {
+        MoviesRepository.getPopularMovies(
+            popularMoviesPage,
+            ::onPopularNoveoFetched,
+            ::onError
+        )
+    }
+
+    private fun getPopularSeries() {
+        MoviesRepository.getPopularMovies(
+            popularMoviesPage,
+            ::onPopularSeriesFetched,
+            ::onError
+        )
+    }
+
+    private fun attachPopularMoviesOnScrollListener() {
+        popularMovies.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                val totalItemCount = popularMoviesLayoutMgr.itemCount
+                val visibleItemCount = popularMoviesLayoutMgr.childCount
+                val firstVisibleItem = popularMoviesLayoutMgr.findFirstVisibleItemPosition()
+
+                if (firstVisibleItem + visibleItemCount >= totalItemCount / 2) {
+                    popularMovies.removeOnScrollListener(this)
+                    popularMoviesPage++
+                    getPopularMovies()
+                }
+            }
+        })
+    }
+
+    private fun attachPopularNoveoOnScrollListener() {
+        popularNoveo.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                val totalItemCount = popularNoveoLayoutMgr.itemCount
+                val visibleItemCount = popularNoveoLayoutMgr.childCount
+                val firstVisibleItem = popularNoveoLayoutMgr.findFirstVisibleItemPosition()
+
+                if (firstVisibleItem + visibleItemCount >= totalItemCount / 2) {
+                    popularNoveo.removeOnScrollListener(this)
+                    popularMoviesPage++
+                    getPopularNoves()
+                }
+            }
+        })
+    }
+
+    private fun attachPopularSeriesOnScrollListener() {
+        popularSeries.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                val totalItemCount = popularSeriesLayoutMgr.itemCount
+                val visibleItemCount = popularSeriesLayoutMgr.childCount
+                val firstVisibleItem = popularSeriesLayoutMgr.findFirstVisibleItemPosition()
+
+                if (firstVisibleItem + visibleItemCount >= totalItemCount / 2) {
+                    popularSeries.removeOnScrollListener(this)
+                    popularMoviesPage++
+                    getPopularNoves()
+                }
+            }
+        })
+    }
+
     private fun onPopularMoviesFetched(movies: List<Movie>) {
-        popularMoviesAdapter.updateMovies(movies)
+        popularMoviesAdapter.appendMovies(movies)
+        var adapter = popularMoviesAdapter
+        popularMovies.adapter = adapter
+        adapter.setOnItemClickListener(object : MoviesAdapter.onItemClickListener{
+            override fun onItemClick(movie: Movie) {
+                Toast.makeText(this@HomeActivity, "voce clicou em: " + movie.overview, Toast.LENGTH_SHORT).show()
+            }
+        })
+
+
+        attachPopularMoviesOnScrollListener()
+    }
+
+    private fun onPopularNoveoFetched(movies: List<Movie>) {
+        popularNoveoAdapter.appendMovies(movies)
+        attachPopularNoveoOnScrollListener()
+    }
+
+    private fun onPopularSeriesFetched(movies: List<Movie>) {
+        popularSeriesAdapter.appendMovies(movies)
+        attachPopularSeriesOnScrollListener()
     }
 
     private fun onError() {

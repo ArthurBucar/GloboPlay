@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">GloboPlay</string>
-    <string name="popular">Popular</string>
-    <string name="mais_procurados">Novelas</string>
+    <string name="popular">Novelas</string>
+    <string name="mais_procurados">Filmes</string>
+    <string name="series">Series</string>
     <string name="error_search_movies">Sem conexao</string>
     <string name="Tops">Top Populares</string>
 </resources>
