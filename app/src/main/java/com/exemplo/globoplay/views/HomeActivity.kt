@@ -183,9 +183,13 @@ class HomeActivity : AppCompatActivity() {
         popularMoviesAdapter.appendMovies(movies)
         var adapter = popularMoviesAdapter
         popularMovies.adapter = adapter
-        adapter.setOnItemClickListener(object : MoviesAdapter.onItemClickListener{
+        adapter.setOnItemClickListener(object : MoviesAdapter.onItemClickListener {
             override fun onItemClick(movie: Movie) {
-                Toast.makeText(this@HomeActivity, "voce clicou em: " + movie.overview, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@HomeActivity,
+                    "voce clicou em: " + movie.overview,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
 
