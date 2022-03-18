@@ -73,8 +73,8 @@ class HomeActivity : AppCompatActivity() {
         popularSeries.adapter = popularSeriesAdapter
 
         getPopularMovies()
-        //getPopularNoves()
-        //getPopularSeries()
+        getPopularNoves()
+        getPopularSeries()
     }
 
     private fun setTitle(title: String?) {
@@ -199,11 +199,33 @@ class HomeActivity : AppCompatActivity() {
 
     private fun onPopularNoveoFetched(movies: List<Movie>) {
         popularNoveoAdapter.appendMovies(movies)
+        var adapter = popularNoveoAdapter
+        popularNoveo.adapter = adapter
+        adapter.setOnItemClickListener(object : MoviesAdapter.onItemClickListener {
+            override fun onItemClick(movie: Movie) {
+                Toast.makeText(
+                    this@HomeActivity,
+                    "voce clicou em: " + movie.overview,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
         attachPopularNoveoOnScrollListener()
     }
 
     private fun onPopularSeriesFetched(movies: List<Movie>) {
         popularSeriesAdapter.appendMovies(movies)
+        var adapter = popularSeriesAdapter
+        popularSeries.adapter = adapter
+        adapter.setOnItemClickListener(object : MoviesAdapter.onItemClickListener {
+            override fun onItemClick(movie: Movie) {
+                Toast.makeText(
+                    this@HomeActivity,
+                    "voce clicou em: " + movie.overview,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
         attachPopularSeriesOnScrollListener()
     }
 
